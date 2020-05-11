@@ -1,0 +1,227 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>코로나가 종식될 때까지 : Until Corona ends</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/2tle/staticfiles/static/css/normalize.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/2tle/staticfiles/static/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/style.css">
+        <script src="https://cdn.jsdelivr.net/gh/2tle/staticfiles/static/js/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/2tle/staticfiles/static/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=be6adb47fd9aeaa2763d7c3a4a53a722"></script>
+        <script src="/js/request.js"></script>
+        
+    </head>
+    <body>
+        <div class="wrap">
+            <nav class="navbar navbar-dark bg-dark">
+                <a class="navbar-brand" href="/">
+                    <img src="/icon.png" width="30" height="30" class="d-inline-block align-top" alt="">
+                    코로나가 종식될 때까지
+                </a>
+            </nav>
+            <div class="wrap">
+                <div class="now-corona">
+                    <div class="now-corona-dash">
+                        <div class="wrapper-dash">
+                            <div class="card-deck">
+                                <div class="card text-white bg-info mb-3">
+                                    <div class="card-header">확진환자</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="accrue"></h5>
+                                        <p class="card-text" id="accrue1"></p>
+                                    </div>
+                                </div>
+                                <div class="card text-white bg-primary mb-3">
+                                    <div class="card-header">치료 중</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="care"></h5>
+                                        <p class="card-text" id="care1"></p>
+                                    </div>
+                                </div>
+                                <div class="card text-white bg-success mb-3">
+                                    <div class="card-header">격리해제</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="complete"></h5>
+                                        <p class="card-text" id="complete1"></p>
+                                    </div>
+                                </div>
+                                <div class="card text-white bg-danger mb-3">
+                                    <div class="card-header">사망</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="die"></h5>
+                                        <p class="card-text" id="die1"></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="card text-white bg-secondary mb-3">
+                                    <div class="card-header">누적검사수</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="nj"></h5>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
+                            
+                            
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <div id="map" class="map">
+                        </div>
+                        <iframe src="/news" class="newsframe" frameBorder="0"></iframe>
+                    </div>
+                
+                    <div class="footer">
+                        Copyright 2020. hyunjun. All right reserved.<br>
+                        iam@hyunjun.xyz
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var lat = 0, lng = 0;
+            var map = '';
+            var overlayArr = [];
+            var markerArr = [];
+            function qqqq(mlat, mlng) {
+                lat = mlat;
+                lng = mlng;
+                nextFunc();
+            }
+            function closeOverlay(oo) {
+                oo.setMap(null);
+            }
+            function onOver(map1,markeridx, overlayidx){
+                return function() {
+                    overlayArr[overlayidx].setMap(map1);
+                }
+            }
+            function nextFunc() {
+                var mapContainer = document.getElementById('map'),
+                    mapOption = {
+                        center: new kakao.maps.LatLng(lat,lng),
+                        level:3
+                    };
+                map = new kakao.maps.Map(mapContainer, mapOption);
+                var greenMarker = "https://cdn.jsdelivr.net/gh/2tle/staticfiles/marker/green_marker.png";
+                var grayMarker = "https://cdn.jsdelivr.net/gh/2tle/staticfiles/marker/gray_marker.png";
+                var redMarker = "https://cdn.jsdelivr.net/gh/2tle/staticfiles/marker/red_marker.png";
+                var lightgrayMarker = "https://cdn.jsdelivr.net/gh/2tle/staticfiles/marker/lightgray_marker.png";
+                var yellowMarker = "https://cdn.jsdelivr.net/gh/2tle/staticfiles/marker/yellow_marker.png";
+                var pos = [];
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET','/request/newmask?x='+lng+'&y='+lat);
+                xhr.send();
+                xhr.addEventListener('load', function() {
+                    var loadedJson = JSON.parse(xhr.responseText);
+                    var ispc = false;
+                    var filter = "win16|win32|win64|mac|macintel"; 
+                    if ( navigator.platform ) { 
+                        if ( filter.indexOf( navigator.platform.toLowerCase() ) < 0 ) { 
+                            
+                        } 
+                        else { 
+                            ispc = true;
+                        } 
+                    }
+                    for(var i = 0 ; i < loadedJson.count ; i++){
+                        var ifn = loadedJson.stores[i].remain_stat;
+                        var markerLink = '';
+                        switch(ifn) {
+                            case 'plenty':
+                                ifn="많음";
+                                markerLink = greenMarker;
+                                break;
+                            case 'some':
+                                ifn="보통";
+                                markerLink = yellowMarker;
+                                break;
+                            case 'few':
+                                ifn="적음";
+                                markerLink = redMarker;
+                                break;
+                            case 'empty':
+                                ifn="없음";
+                                markerLink = grayMarker;
+                                break;
+                            case 'break':
+                                ifn="판매중지";
+                                markerLink = lightgrayMarker;
+                                break;
+                            default:
+                                ifn="정보없음";
+                                markerLink = lightgrayMarker;
+                        }
+                        var imageSize = new kakao.maps.Size(30,30);
+                        var imageOption = {offset: new kakao.maps.Point(15, 30)};
+                        var markerImg = new kakao.maps.MarkerImage(markerLink, imageSize, imageOption);
+                        var temp = {
+                            title: loadedJson.stores[i].name,
+                            content: '<div class="infoo">'+loadedJson.stores[i].name+' :: '+ifn+'</div>', 
+                            latlng: new kakao.maps.LatLng(loadedJson.stores[i].lat, loadedJson.stores[i].lng),
+                            img: markerImg,
+                            iii: ifn
+                        };
+                        pos.push(temp);
+                    }
+                    for(var i = 0 ; i < loadedJson.count ; i++){
+                        markerArr[i] = new kakao.maps.Marker({
+                            map: map,
+                            position: pos[i].latlng,
+                            title: pos[i].title,
+                            image: pos[i].img
+                        });
+                        var te1 = loadedJson.stores[i].addr.substring(0,loadedJson.stores[i].addr.length/2);
+                        var te2 = loadedJson.stores[i].addr.substring(loadedJson.stores[i].addr.length/2,loadedJson.stores[i].addr.length);
+                        
+                        var ctt1 = '<div class="wrap1">' + 
+                        '    <div class="info1">' + 
+                        '        <div class="title1">' + loadedJson.stores[i].name + 
+                        '            <div class="close1" onclick="closeOverlay(overlayArr['+i+'])" title="닫기"></div>' + 
+                        '        </div>' + 
+                        '        <div class="body1">' + 
+                        '            <div class="desc1">' + 
+                        '                <div class="ellipsis1"> 수량: '+ pos[i].iii+'</div>' + 
+                        '                <div class="jibun1 ellipsis1"> ' + te1 + '<br>'+te2+ '</div>' +
+                        '            </div>' + 
+                        '        </div>' + 
+                        '    </div>' +    
+                        '</div>';
+                        /* var ctt = '<div class="card bg-light mb-3 mapcard"><div class="card-header"><p class="qet">'+loadedJson.stores[i].name+'</p><span class="close" onclick="closeOverlay(overlayArr['+i+']);" title="닫기">X</span></div><div class="card-body text-secondary"><p class="card-text">수량: '+pos[i].iii+' <br> '+'<a href="'+maplink+'">주소보기</a>'+'</p></div></div>'; */
+                        overlayArr[i] = new kakao.maps.CustomOverlay({
+                            content: ctt1,
+                            map: map,
+                            position: markerArr[i].getPosition()
+                        });
+                        
+                        overlayArr[i].setMap(null);
+                        console.log(i);
+                        kakao.maps.event.addListener(markerArr[i], 'click', onOver(map,i,i));
+                    }
+                });
+            }
+            window.onload = function() {
+                getCovData();
+                $(function() {
+                    if(navigator.geolocation){
+                        navigator.geolocation.getCurrentPosition(function(pos) {
+                            qqqq(pos.coords.latitude,pos.coords.longitude);
+                        });
+                    }
+                });
+                
+            }
+
+            
+            
+        </script>
+        
+        <script>
+            
+        </script>
+        
+    </body>
+</html>

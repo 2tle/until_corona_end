@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            .newscard {
+                border : 1px solid gray;
+                border-radius : 5px;
+                
+            }
+            img {
+                width:50x;
+                height:50px;
+                
+            }
+            .wrp {
+                padding : 1em;
+            }
+            .title {
+            }
+            .des {
+                font-size:6px;
+            }
+            a{
+                color : black;
+                text-decoration:none;
+                margin : 1em;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="news">
+            <h4> 코로나 관련 뉴스 </h4>
+            <div class="news-data" id="news-dt">
+                
+                
+            </div>
+        </div>
+        <script src="/js/request.js"></script>
+        <script>
+            window.onload = function() {
+                getNews();
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        </style>
+        <script>
+            window.onload = function() {
+                $(function() {
+                    if(navigator.geolocation){
+                        navigator.geolocation.getCurrentPosition(function(pos) {
+                            var lat = pos.coords.latitude;
+                            var lng = pos.coords.longitude;
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('GET','/request/newmask?x=lng&y=lat');
+                            xhr.send();
+                            xhr.addEventListener('load', function() {
+                                let loadedJSON = JSON.parse(xhr.responseText);
+                                var mapContainer = document.getElementById('map');
+                            });
+                        });
+                    } else {
+                        alert('Not support');
+                    }
+                });  
+            };
+        </script>
+    </head>
+    <body>
+        <div class="mask">
+            <h4> 마스크 정보 </h4>
+            <div id="map" style="width:100%;height:100vh;">
+                
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/gh/2tle/staticfiles/static/js/jquery-3.5.1.min.js"></script>
+        <script src="/js/request.js"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=be6adb47fd9aeaa2763d7c3a4a53a722"></script>
+        
+    </body>
+</html>
