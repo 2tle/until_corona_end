@@ -74,7 +74,7 @@ a {
 .info1 .link1 {color: #5085BB;}
 
 
-@media all and (min-width : 1050px) {
+@media all and (min-width : 800px) {
     .now-corona-dash {
         width : 100%;
     }
